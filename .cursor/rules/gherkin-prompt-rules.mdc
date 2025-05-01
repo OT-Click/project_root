@@ -1,0 +1,148 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+<gherkin_prompt_rules>
+  <introduction>
+    <title>Правила оформления задач в формате Gherkin для Markdown</title>
+    <user_story_connection>
+      <point>Gherkin — это расширенный формат пользовательских историй (User Stories)</point>
+      <point>Классические User Stories: _As a (кто) / I want to (что) / So that (зачем)_</point>
+      <point>Gherkin добавляет сценарии взаимодействия, фокусируется на процессе и эмпатии к пользователю</point>
+    </user_story_connection>
+  </introduction>
+
+  <structure>
+    <title>Структура Gherkin</title>
+    <element name="Feature">Функциональность, которую описываем</element>
+    <element name="Background">Общие предусловия (опционально)</element>
+    <element name="Scenario">Конкретный сценарий поведения</element>
+    <steps_list name="Steps">
+      <step name="Given">Предусловия</step>
+      <step name="When">Действия</step>
+      <step name="Then">Результаты</step>
+      <step name="And">Дополнительные шаги</step>
+    </steps_list>
+  </structure>
+
+  <user_story_gherkin_mapping>
+    <title>Связь User Story и Gherkin</title>
+    <mapping>
+      <user_story>As a (кто)</user_story>
+      <gherkin_element>Given</gherkin_element>
+      <description>отражается в **Given** (роль пользователя и контекст)</description>
+    </mapping>
+    <mapping>
+      <user_story>I want to (что)</user_story>
+      <gherkin_element>When</gherkin_element>
+      <description>отражается в **When** (действие пользователя)</description>
+    </mapping>
+    <mapping>
+      <user_story>So that (зачем)</user_story>
+      <gherkin_element>Then</gherkin_element>
+      <description>отражается в **Then** (цель или результат)</description>
+    </mapping>
+  </user_story_gherkin_mapping>
+
+  <markdown_formatting_rules>
+    <title>Оформление Gherkin-сценариев в Markdown</title>
+    <rule>
+      <element>Feature</element>
+      <markdown>заголовок 2-го уровня (`## Feature: ...`)</markdown>
+    </rule>
+    <rule>
+      <element>Background</element>
+      <markdown>подзаголовок 3-го уровня (`### Background`), если требуется</markdown>
+    </rule>
+    <rule>
+      <element>Scenario</element>
+      <markdown>подзаголовок 3-го уровня (`### Scenario: ...`)</markdown>
+    </rule>
+    <rule>
+      <element>Identification (Идентификация)</element>
+      <markdown>Добавлять уникальный ID к `Feature` и `Scenario` сразу после двоеточия. Формат ID: `[FNN]` для функциональных фич, `[NFNN]` для нефункциональных. Для `Scenario` формат: `[SNN.MM]` для функциональных и `[NSNN.MM]` для нефункциональных, где `NN` — номер фичи, `MM` — номер сценария внутри фичи (e.g., `## Feature: [F01] ...`, `### Scenario: [S01.01] ...`).</markdown>
+    </rule>
+    <rule>
+      <element>Steps (Given, When, Then, And)</element>
+      <markdown>маркированный список внутри Scenario</markdown>
+    </rule>
+    <rule>
+      <element>Keywords</element>
+      <markdown>Ключевые слова Gherkin (**_Given_**, **_When_**, **_Then_**, **_And_**) выделять **_жирным и подчеркнутым_** и писать их только на английском(`**_Given_**`, `**_When_**`, etc.)</markdown>
+    </rule>
+    <rule>
+      <element>Nested Actions</element>
+      <markdown>использовать дополнительные уровни списков</markdown>
+    </rule>
+    <rule>
+      <element>Feature Description</element>
+      <markdown>в виде комментария под заголовком (курсивом). Описание должно следовать структуре User Story, где каждая часть начинается с новой строки:
+_**_As a_** (кто),
+**_I want to_** (что),
+**_So that_** (зачем)._
+Ключевые фразы User Story (`As a`, `I want to`, `So that`) выделять **_жирным и подчеркнутым_** (`**_As a_**`, `**_I want to_**`, `**_So that_**`).</markdown>
+    </rule>
+    <rule>
+      <element>Style (Стиль)</element>
+      <markdown>использовать активный залог, избегать технических терминов</markdown>
+    </rule>
+    <rule>
+      <element>Step Specificity (Конкретность шагов)</element>
+      <markdown>каждый шаг должен быть конкретным и измеряемым</markdown>
+    </rule>
+  </markdown_formatting_rules>
+
+  <examples>
+    <good_example>
+      <title>Пример правильного оформления</title>
+      <code><![CDATA[
+## Feature: User Authentication
+
+_as User I should be able to authenticate using email and password_
+
+### Background
+
+- **Given** I am on the login page
+
+### Scenario: Successful login with valid credentials
+
+- **When** I enter valid email and password
+- **And** I click login button
+- **Then** I should be redirected to dashboard
+- **And** I should see welcome message
+
+### Scenario: Failed login with invalid credentials
+
+- **When** I enter invalid email and password
+- **And** I click login button
+- **Then** I should see error message "Invalid credentials"
+- **And** I should remain on login page
+      ]]></code>
+    </good_example>
+    <bad_example>
+      <title>Пример неправильного оформления</title>
+      <code><![CDATA[
+## Feature: Login
+
+*Test login functionality_
+
+### Scenario: Test login
+
+- **When** I test login
+- **Then** it should work
+      ]]></code>
+      <note>В неправильном примере не используется правильная структура Gherkin.</note>
+    </bad_example>
+  </examples>
+
+  <important_requirements>
+    <title>ВАЖНЫЕ требования</title>
+    <requirement>Описывать задачи по структуре Gherkin</requirement>
+    <requirement>Использовать для ключевых слов(Feature, Background, Scenario, When, Then, etc) только английский язык для остальных слов только русский язык</requirement>
+    <requirement>Следовать структуре: Feature → Background → Scenarios → Steps</requirement>
+    <requirement>Фокус на пользовательском опыте и эмоциях</requirement>
+    <requirement>Описывать не только "что", но и "как" происходит взаимодействие</requirement>
+  </important_requirements>
+
+</gherkin_prompt_rules>

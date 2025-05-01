@@ -1,0 +1,137 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+<gherkin_issue_automation>
+  <overview>
+    <title>Автоматизация GitHub Issues для Gherkin-задач</title>
+    <description>Алгоритм для создания структурированных GitHub Issues из Gherkin-сценариев с правильными связями между функциональностью и сценариями</description>
+  </overview>
+  
+  <workflow>
+    <step number="0">
+      <action>Определение репозитория</action>
+      <method>Используйте `git remote -v` чтобы узнать owner и адрес текущего репозитория</method>
+      <output>owner/repo_name</output>
+    </step>
+    
+    <step number="1">
+      <action>Выбор функциональности</action>
+      <method>Получите Feature, указанную пользователем (например, ## Feature: [F01] ...)</method>
+      <input>Feature ID и описание</input>
+    </step>
+    
+    <step number="2">
+      <action>Определение сценариев</action>
+      <method>Найдите все сценарии, относящиеся к данной Feature (### Scenario: [S01.XX] ...)</method>
+      <output>Список сценариев с их содержимым</output>
+    </step>
+    
+    <step number="3">
+      <action>Создание issue для сценариев</action>
+      <method>Для каждого сценария вызовите `mcp_github_create_issue` со следующими параметрами:
+        - owner: владелец репозитория
+        - repo: имя репозитория
+        - title: название сценария, включая ID
+        - body: полное содержимое сценария, форматированное по @gherkin-prompt-rules.mdc
+        - labels: метки для категоризации (Feature ID, "scenario")
+      </method>
+      <template>
+        <title>[S01.XX] Название сценария</title>
+        <body>
+          ## Scenario: [S01.XX] Название сценария
+          
+          _Часть функциональности: [F01] Название функциональности_
+          
+          _**_As a_** роль, **_I want to_** действие, **_So that_** цель._
+          
+          ### Steps
+          
+          - **_Given_** предусловие
+          - **_When_** действие
+          - **_Then_** результат
+          - **_And_** дополнительный результат
+        </body>
+      </template>
+      <output>ID созданных issues с их URL</output>
+    </step>
+    
+    <step number="4">
+      <action>Создание issue для функциональности</action>
+      <method>Вызовите `mcp_github_create_issue` со следующими параметрами:
+        - owner: владелец репозитория
+        - repo: имя репозитория
+        - title: название функциональности, включая ID
+        - body: описание функциональности + заголовки сценариев с ссылками на созданные issue
+        - labels: метки для категоризации (Feature ID, "feature")
+      </method>
+      <template>
+        <title>[F01] Название функциональности</title>
+        <body>
+          ## Feature: [F01] Название функциональности
+          
+          _**_As a_** роль, **_I want to_** действие, **_So that_** цель._
+          
+          ### Background
+          
+          - **_Given_** общее предусловие
+          
+          ### Scenario: [S01.01] [Название сценария 1](https://github.com/owner/repo/issues/XX)
+          
+          ### Scenario: [S01.02] [Название сценария 2](https://github.com/owner/repo/issues/YY)
+          
+          ### Scenario: [S01.03] [Название сценария 3](https://github.com/owner/repo/issues/ZZ)
+        </body>
+      </template>
+      <output>ID созданного feature issue с его URL</output>
+    </step>
+    
+    <step number="5">
+      <action>Обновление issues сценариев</action>
+      <method>Для каждого сценария вызовите `mcp_github_update_issue` чтобы добавить обратную ссылку на issue функциональности:
+        - owner: владелец репозитория
+        - repo: имя репозитория
+        - issue_number: номер issue сценария
+        - body: обновленное тело с добавленной ссылкой на функциональность
+      </method>
+      <addition>
+        _Часть функциональности: [F01 Название функциональности](https://github.com/owner/repo/issues/FF)_
+      </addition>
+    </step>
+  </workflow>
+  
+  <examples>
+    <example>
+      <description>Пример создания issues для Feature [F01] и ее сценариев</description>
+      <input>
+        ## Feature: [F01] Молниеносный отклик через Telegram‑бота
+        _**_As a_** пользователь, **_I want to_** пересылать вакансии боту, **_So that_** система автоматически обрабатывала их и отправляла отклики._
+        
+        ### Background
+        
+        - **_Given_** пользователь авторизован в Telegram‑боте
+        
+        ### Scenario: [S01.01] Пересылка вакансии и получение тикета
+        
+        - **_When_** пользователь пересылает сообщение‑вакансию из публичного канала
+        - **_Then_** Web‑hook фиксирует атрибут forward_from_chat
+        - **_And_** бот отвечает тикетом с уникальным ID вакансии
+        - **_And_** статус вакансии устанавливается в «New»
+      </input>
+      <output>
+        1. Создается issue для сценария [S01.01]
+        2. Создается issue для Feature [F01]
+        3. В Feature issue добавляется ссылка на Scenario issue
+        4. В Scenario issue добавляется ссылка на Feature issue
+      </output>
+    </example>
+  </examples>
+  
+  <important_notes>
+    <note>Всегда следуйте структуре форматирования из @gherkin-prompt-rules.mdc</note>
+    <note>Используйте для ключевых слов(Feature, Background, Scenario, When, Then, etc) только английский язык, для остальных слов только русский язык</note>
+    <note>Сохраняйте ID исходных Feature/Scenario в созданных issues</note>
+    <note>Добавляйте соответствующие метки (labels) для лучшей организации</note>
+  </important_notes>
+</gherkin_issue_automation>

@@ -1,0 +1,60 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Task Ticket Template
+
+This rule defines the standard template for creating new task tickets (e.g., GitHub Issues) in this project. Following this template ensures consistency and provides clear instructions, especially for junior developers.
+
+**Важное правило языка:**
+*   Все плейсхолдеры в квадратных скобках (например, `[Brief, Action-Oriented Title]`, `[Specific action for the developer]`) являются **английскими** ключевыми словами, описывающими ожидаемый контент. **Не переводите их.**
+*   Текст, который вы **вписываете** вместо этих плейсхолдеров при создании тикета, должен быть на **русском языке**.
+
+## Ticket Structure (XML Definition)
+
+Use the following conceptual XML structure to guide the creation of the final Markdown ticket. The actual ticket should be created in **Markdown format** following this structure.
+
+```xml
+<TaskTicket>
+    <Title>[TaskID]: [Brief, Action-Oriented Title]</Title> <!-- e.g., [TASK-SP1-001]: Настройка Репозитория -->
+    <ID>[TaskID]</ID> <!-- e.g., TASK-SP1-001 -->
+    <RelatedScenario link="mdc:path/to/feature/file.md#scenario-scenarioid">[Link Text]</RelatedScenario> <!-- Example Markdown Link: [S01.01 Пересылка вакансии...](mdc:features/Reconstructed_F01_from_issues.md#scenario-s0101-пересылка-вакансии-и-получение-тикета) -->
+    <RoadmapItem optional="true">[Link to MVP_Roadmap.md item]</RoadmapItem>
+    <DependsOn optional="true">[Link to prerequisite issue, e.g., #123]</DependsOn>
+
+    <Description>
+        [Provide a brief (1-2 sentence) overview of the task and its goal.]
+    </Description>
+
+    <ImplementationChecklist>
+        <Item>Step 1: [Specific action for the developer]</Item>
+        <Item>Step 2: [Specific action for the developer]</Item>
+        <Item>...</Item>
+        <Item>Ensure code adheres to project linting/formatting standards ([NS05.01](mdc:features/Reconstructed_NF05_from_issues.md#scenario-ns0501-стандартизация-инструментов-разработки))</Item>
+        <Item>Write/update unit tests covering the changes ([NS05.02](mdc:features/Reconstructed_NF05_from_issues.md#scenario-ns0502-организация-процесса-pull-request))</Item>
+    </ImplementationChecklist>
+
+    <AcceptanceCriteria>
+        <Criterion>Criterion 1: [Measurable condition that must be met for the task to be 'Done']</Criterion>
+        <Criterion>Criterion 2: [Measurable condition that must be met for the task to be 'Done']</Criterion>
+        <Criterion>...</Criterion>
+        <Criterion>All CI checks pass ([NS01.02](mdc:features/Reconstructed_NF01_from_issues.md#scenario-ns0102-настройка-cicd-для-автоматических-сборок))</Criterion>
+    </AcceptanceCriteria>
+
+    <Notes optional="true">
+        [Any additional context, considerations, or potential gotchas.]
+    </Notes>
+</TaskTicket>
+```
+
+**Explanation of Fields (for generating Markdown output):**
+
+*   **Title (`<Title>`):** Формат заголовка задачи: `[TaskID]: Краткое название задачи`. `TaskID` должен совпадать со значением в поле ID. Пример: `[TASK-SP1-001]: Настройка Репозитория bot-svc`.
+*   **ID (`<ID>`):** Уникальный идентификатор задачи в формате `TASK-SP<SprintNumber>-<TaskNumber>`, например, `TASK-SP1-001`. Этот же ID используется в начале заголовка. Формат в теле тикета: `**ID:** \`TASK-SP1-001\``.
+*   **Related Scenario (`<RelatedScenario>`):** Provide a direct **Markdown link** to the relevant scenario within the corresponding feature file (use the `mdc:` link format as shown in the XML comment). Format as `**Related Scenario:** [Link Text](mdc:path...)`.
+*   **Checklist (`<ImplementationChecklist>`):** Break down the task into small, concrete steps a junior developer can follow. Use Markdown list format (`* [ ] Step...`). Include standard checks like linting and testing.
+*   **Acceptance Criteria (`<AcceptanceCriteria>`):** Define specific, verifiable conditions that prove the task is completed correctly. Use Markdown list format (`* [ ] Criterion...`). Reference CI checks.
+*   Other fields map directly to Markdown headings like `**Roadmap Item:**`, `**Depends On:**`, `**Description:**`, `**Notes:**`.
+
+**REMEMBER:** The final output (e.g., in a GitHub Issue) should be **Markdown**, using this XML structure as a guide.

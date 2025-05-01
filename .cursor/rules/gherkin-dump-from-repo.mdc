@@ -1,0 +1,79 @@
+---
+description: Generates a Gherkin Markdown file from GitHub issues.
+globs: [] # No specific glob, as it reads from GitHub
+alwaysApply: false
+---
+<gherkin_reconstructor_from_issues>
+  <overview>
+    <title>Восстановление Gherkin файла из GitHub Issues</title>
+    <description>Алгоритм для получения данных из GitHub Issues (Features и Scenarios) и воссоздания Gherkin-файла в формате Markdown со ссылками на эти issues.</description>
+    <important>Этот процесс предполагает, что issues были созданы структурированно: задачи Feature содержат описание и ссылки/информацию о Scenarios, а задачи Scenarios содержат полный текст шагов Gherkin.</important>
+  </overview>
+
+  <workflow>
+    <step number="1">
+      <action>Определение репозитория</action>
+      <method>Используйте `git remote -v` чтобы узнать owner и адрес текущего репозитория.</method>
+      <output>owner/repo_name</output>
+    </step>
+
+    <step number="2">
+      <action>Получение списка всех релевантных issues</action>
+      <method>Вызовите mcp github `list_issues` для получения всех задач с метками 'feature' и 'scenario'.
+        - owner: владелец репозитория
+        - repo: имя репозитория
+        - state: "open" (или "all")
+        - labels: "feature,scenario"
+        - perPage: 100 (максимальное значение)
+        - page: 1 (начать с первой страницы)
+
+        **Важно:** Если количество задач превышает `perPage`, необходимо будет сделать дополнительные вызовы `list_issues`, увеличивая значение параметра `page` (page: 2, page: 3, ...) до тех пор, пока не будут получены все задачи (ответ не будет содержать пустой список задач). Результаты всех вызовов нужно объединить.
+      </method>
+      <output>Полный список релевантных issues с их номерами (`number`), заголовками (`title`), телами (`body`), метками (`labels`) и URL (`html_url`).</output>
+    </step>
+
+    <step number="3">
+      <action>Группировка и сортировка Issues</action>
+      <method>Обработайте список issues из шага 2:
+        - Разделите issues на два списка: `feature_issues` и `scenario_issues` на основе метки 'feature' или 'scenario'.
+        - Отсортируйте `feature_issues` по ID `[FXX]` в заголовке.
+        - Для каждого `feature_issue` создайте список ассоциированных `scenario_issues`, либо находя их по общей метке ID (`FXX`), либо извлекая ссылки/номера из тела `feature_issue`.
+        - Отсортируйте `scenario_issues` для каждой фичи по ID `[SXX.YY]` в заголовке.
+      </method>
+      <output>Структурированные данные: список фич, каждая из которых содержит детали Feature-задачи и отсортированный список деталей Scenario-задач.</output>
+    </step>
+
+    <step number="4">
+      <action>Формирование Gherkin Markdown</action>
+      <method>Пройдитесь по отсортированному списку фич из шага 3:
+        - Для каждой фичи:
+          - Извлеките ID, название, URL из `feature_issue`.
+          - Извлеките описание `_**_As a_**...` и `### Background` (если есть) из `feature_issue.body`.
+          - Сформируйте заголовок: `## Feature: [[ID] Название](URL)`.
+          - Добавьте строку `_**_As a_**...`.
+          - Добавьте секцию `### Background` (если извлечена).
+          - Для каждого ассоциированного сценария (в отсортированном порядке):
+            - Извлеките ID, название, URL из `scenario_issue`.
+            - Извлеките шаги Gherkin (`- **_Given_**...`, `- **_When_**...` и т.д.) из `scenario_issue.body`. *Предполагается, что они там хранятся в нужном формате*.
+            - Сформируйте заголовок: `### Scenario: [[ID] Название](URL)` (или Scenario Outline).
+            - Добавьте извлеченные шаги Gherkin.
+          - Добавьте разделитель `-------------------------------------------------------------`.
+      </method>
+      <output>Полный текст воссозданного Gherkin файла в формате Markdown.</output>
+    </step>
+
+    <step number="5">
+      <action>Запись в новый файл</action>
+      <method>Используйте `write_to_file` для записи сформированного Gherkin текста (из шага 4) в новый файл, например, `Reconstructed_Stories_from_issues.md`.</method>
+      <input>Путь к новому файлу (`Reconstructed_Stories_from_issues.md`) и содержимое из шага 4.</input>
+      <output>Файл `Reconstructed_Stories_from_issues.md`, содержащий Gherkin-структуру, воссозданную из GitHub issues.</output>
+    </step>
+  </workflow>
+
+  <important_notes>
+    <note>Точность воссоздания зависит от того, насколько полно и структурированно информация хранится в телах задач GitHub.</note>
+    <note>Необходимо, чтобы заголовки задач содержали ID `[FXX]` или `[SXX.YY]` для сортировки и сопоставления.</note>
+    <note>Предполагается, что тело задачи сценария содержит полный текст его шагов в корректном Gherkin-формате.</note>
+    <note>Комментарии и другие метаданные задач GitHub не включаются в итоговый Gherkin-файл.</note>
+  </important_notes>
+</gherkin_reconstructor_from_issues>
